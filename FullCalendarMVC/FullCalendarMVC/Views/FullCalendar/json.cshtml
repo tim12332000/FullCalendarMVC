@@ -1,0 +1,98 @@
+﻿@{
+    Layout = null;
+}
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.min.css' rel='stylesheet' />
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.print.css' rel='stylesheet' media='print' />
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/scheduler.min.css' rel='stylesheet' />
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/moment.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/jquery.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/scheduler.min.js'></script>
+<script>
+
+    $(function () { // document ready
+
+        $('#calendar').fullCalendar({
+            schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+            now: '2015-08-07',
+            editable: true, // enable draggable events
+            aspectRatio: 1.8,
+            scrollTime: '00:00', // undo default 6am scrollTime
+            header: {
+                left: 'today prev,next',
+                center: 'title',
+                right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+            },
+            defaultView: 'timelineMonth',
+            views: {
+                timelineThreeDays: {
+                    type: 'timeline',
+                    duration: { days: 3 }
+                }
+            },
+            resourceLabelText: 'Rooms',
+            resources: {
+                url: '/FullCalendar/GetResources',
+                cache: true,
+                error: function () {
+                    alert('there was an error while fetching events!');
+                },
+            },
+            events:
+                {
+                url: '/FullCalendar/GetEvents',
+                cache: true,
+                error: function () {
+                    alert('there was an error while fetching events!');
+                },
+            },
+        });
+
+    });
+
+</script>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+        font-size: 14px;
+    }
+
+    #script-warning {
+        display: none;
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+        padding: 0 10px;
+        line-height: 40px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+        color: red;
+    }
+
+    #loading {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    #calendar {
+        max-width: 900px;
+        margin: 50px auto;
+    }
+</style>
+
+<body>
+
+    <div id='script-warning'>
+        This page should be running from a webserver, to allow fetching from the <code>json/</code> directory.
+    </div>
+
+    <div id='loading'>loading...</div>
+
+    <div id='calendar' resourcesUrl="" eventsUrl></div>
+
+</body>
+

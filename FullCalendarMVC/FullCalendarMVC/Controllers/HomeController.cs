@@ -10,7 +10,7 @@ namespace FullCalendarMVC.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("FullCalendar");
+            return RedirectToAction("Index","FullCalendar");
         }
 
         public ActionResult About()
@@ -27,9 +27,5 @@ namespace FullCalendarMVC.Controllers
             return View();
         }
 
-        public ActionResult FullCalendar()
-        {
-            return View();
-        }
     }
 }
