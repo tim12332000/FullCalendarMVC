@@ -145,3 +145,4 @@ C:\Users\Tim\Documents\FullCalendarMVC\FullCalendarMVC\FullCalendarMVC\bin\zh-Ha
 C:\Users\Tim\Documents\FullCalendarMVC\FullCalendarMVC\FullCalendarMVC\bin\zh-Hant\Microsoft.Owin.Security.MicrosoftAccount.resources.dll
 C:\Users\Tim\Documents\FullCalendarMVC\FullCalendarMVC\FullCalendarMVC\obj\Debug\FullCalendarMVC.dll
 C:\Users\Tim\Documents\FullCalendarMVC\FullCalendarMVC\FullCalendarMVC\obj\Debug\FullCalendarMVC.pdb
+C:\Users\Tim\Documents\FullCalendarMVC\FullCalendarMVC\FullCalendarMVC\obj\Debug\FullCalendarMVC.csprojResolveAssemblyReference.cache

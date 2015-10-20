@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -25,12 +26,12 @@ namespace FullCalendarMVC.Controllers
             return View();
         }
 
-        public ActionResult GetResources(int? _ )
+        public ActionResult GetResources()
         {
             object[] obj = new object[]
             {
-                new {id = "a" ,title = "Auditorium A"},
-                new {id = "b" ,title = "Auditorium B"},
+                new {id = "a" ,title = "專案A"},
+                new {id = "b" ,title = "專案B"},
             };
             string jsonString = new JavaScriptSerializer().Serialize(obj);
 
@@ -50,12 +51,30 @@ namespace FullCalendarMVC.Controllers
                     rendering = "background",
                     color = "#ff9f89"
                 },
-                new{id = 1 , resourceId = "a", start = "2015-08-07T02:00:00", end = "2015-08-07T07:00:00", title = "event 1"},
-                new{id = 2 , resourceId = "b", start = "2015-08-07T02:00:00", end = "2015-08-07T07:00:00", title = "event 2"},
+                new{id = 1 , resourceId = "a", start = "2015-08-07T02:00:00", end = "2015-08-07T07:00:00", title = "E組" , allDay="false", droppable = "true"},
+                new{id = 2 , resourceId = "b", start = "2015-08-07T02:00:00", end = "2015-08-07T07:00:00", title = "F組" , allDay="false"},
             };
 
             string jsonString = new JavaScriptSerializer().Serialize(obj);
             return Content(jsonString);
         }
+
+        //[HttpPost]
+        public ActionResult PostEvents(test[] Roles)
+        {
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+    }
+
+    public class test
+    {
+        public string resourceId { get; set; }
+
+        public int id { get; set; }
+
+        public DateTime start { get; set; }
+
+        public DateTime end { get; set; }
     }
 }
