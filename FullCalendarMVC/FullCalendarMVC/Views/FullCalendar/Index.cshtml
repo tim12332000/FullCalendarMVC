@@ -55,25 +55,23 @@
 
         function renderDraggable(eventsObj) {
 
-            for (var i = 0 ; i < eventsObj.length; i++) {
-                var item = eventsObj[i];
-
-                if (item.title == null) { continue; }
+            eventsObj.forEach(function (item)
+            {
+                if (item.title == null) { return; }
 
                 //生成Draggable html
                 $('#external-events').prepend("<div class='fc-event'>" + item.title + "</div>");
 
                 // store data so the calendar knows to render an event upon drop
-                $('#external-events .fc-event').eq(i).data('event', item);
+                $('#external-events .fc-event').first().data('event', item);
 
                 // make the event draggable using jQuery UI
-                $('#external-events .fc-event').eq(i).draggable({
+                $('#external-events .fc-event').first().draggable({
                     zIndex: 999,
                     revert: true,      // will cause the event to go back to its
                     revertDuration: 0  //  original position after the drag
                 });
-
-            }
+            })
         }
     })
 
@@ -99,7 +97,8 @@
             }
         });
 
-        
+        
+
         /* initialize the calendar
 		-----------------------------------------------------------------*/
         var Calendar = $("[data-fullcalendar]");
