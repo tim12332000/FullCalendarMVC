@@ -1,0 +1,241 @@
+﻿@{
+    ViewBag.Title = "FullCalendar";
+    Layout = null;
+}
+
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.min.css' rel='stylesheet' />
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.print.css' rel='stylesheet' media='print' />
+<link href='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/scheduler.min.css' rel='stylesheet' />
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/moment.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/jquery.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/jquery-ui.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/lib/fullcalendar.min.js'></script>
+<script src='http://fullcalendar.io/js/fullcalendar-scheduler-1.0.1/scheduler.min.js'></script>
+<script src='~/fullcalendar-2.4.0/lang-all.js'></script>
+
+
+<body>
+    <div id='wrap'>
+
+        @*<div id='external-events'
+             data-external-events
+             data-external-url=@Url.Action("GetEvents", "FullCalendar")>
+        </div>*@
+
+        <div id='calendar'
+             data-fullcalendar
+             data-eventsurl=@Url.Action("EventRender_GetEvents", "FullCalendar")
+             data-resourcesurl=@Url.Action("EventRender_GetResources", "FullCalendar")
+             data-updateurl=@Url.Action("PostEvents","FullCalendar")>
+        </div>
+
+        <div style='clear:both'></div>
+
+    </div>
+</body>
+
+
+
+<script>
+    $(function () {
+        /* initialize the external events form object or json
+		-----------------------------------------------------------------*/
+        $("[data-external-events]").each(function () {
+            initDraggable($(this));
+        })
+
+        function initDraggable(Father)
+        {
+            $.getJSON(Father.data("external-url"), function (result) {
+                renderDraggable(result);
+            });
+
+            function renderDraggable(events) {
+
+                events.forEach(function (item) {
+                    if (item.title == null) { return; }
+
+                    //生成Draggable html
+                    Father.prepend("<div class='fc-event'>" + item.title + "</div>");
+
+                    // store data so the calendar knows to render an event upon drop
+                    Father.find('.fc-event').first().data('event', item);
+
+                    // make the event draggable using jQuery UI
+                    Father.find('.fc-event').first().draggable({
+                        zIndex: 999,
+                        revert: true,      // will cause the event to go back to its
+                        revertDuration: 0  //  original position after the drag
+                    });
+                })
+            }
+        }
+    })
+
+    $(function () { // document ready
+
+        /* initialize the calendar
+		-----------------------------------------------------------------*/
+
+        $("[data-fullcalendar]").each(function ()
+        {
+            renderCalendar($(this));
+        })
+
+        function renderCalendar(Calendar) {
+            Calendar.fullCalendar({
+                //lang: "zh-tw",
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                now: '2015-08-07',
+                editable: true, // enable draggable events
+                droppable: true, // this allows things to be dropped onto the calendar
+                aspectRatio: 1.8,
+                scrollTime: '00:00', // undo default 6am scrollTime
+                header: {
+                    left: 'today prev,next',
+                    center: 'title',
+                },
+                eventOverlap: false ,
+                eventColor: "transparent",
+                eventTextColor: "#000",
+                allDayDefault: true,
+                //點集處理程式
+                eventRender: function (calEvent, element) {
+                    element.bind('dblclick', function () {
+                        var people = prompt('訂定人數', calEvent.people, { buttons: { Ok: true, Cancel: false } })
+                        if (people) {
+                            console.log("eventRender");
+                            calEvent.people = people;
+                            calEvent.title = people.toString();
+                            Calendar.fullCalendar('updateEvent', calEvent);
+                        }
+                    });
+                },
+
+                //inverse_background:'#ff9f89',
+                defaultView: 'timelineMonth',
+                //eventOverlap: false, // will cause the event to take up entire resource height
+                //resourceLabelText: 'Project',
+                dayClick: function (calEvent, date, allDay, jsEvent, view) {
+                    prevTime = typeof currentTime === 'undefined' || currentTime === null
+                        ? new Date().getTime() - 1000000
+                        : currentTime;
+                    currentTime = new Date().getTime();
+
+                    if (currentTime - prevTime < 500)
+                    {
+                        //double click call back
+                        console.log("this is double click");
+                        console.log("calEvent",calEvent);
+                        console.log("date",date);
+                        console.log("allDay",allDay);
+                        console.log("jsEvent",jsEvent);
+                        console.log("view", view);
+
+                        var people = prompt('訂定人數', 0, { buttons: { Ok: true, Cancel: false } });
+                        if (people && people > 0) {
+                            console.log("dayClick");
+                            $('#calendar').fullCalendar('renderEvent', { resourceId: jsEvent.id, start: calEvent._d, title: people, people: 10 });
+                            UpdateEvents();
+                        }
+                    }
+                },
+                resourceColumns: [
+				    {
+				        labelText: '專案',
+				        field: 'title'
+				    },
+				    //{
+				    //    labelText: '小組人數',
+				    //    field: 'numberPeople'
+				    //},
+                    //{
+                    //    labelText: '假日需求人數',
+                    //    field: '假日需求人數'
+                    //},
+                    //{
+                    //    labelText: '平日需求人數',
+                    //    field: '平日需求人數'
+                    //},
+                    {
+                        labelText: '假日誤差人數',
+                        field: '假日誤差人數'
+                    },
+                    {
+                        labelText: '平日誤差人數',
+                        field: '平日誤差人數'
+                    },
+                ],
+                dayRender: function (date, cell) {
+                    console.log("date",date);
+                    console.log("cell",cell);
+                    //cell.css("background-color", "red");
+                },
+                //初始化 resources
+                resources: Calendar.data("resourcesurl"),
+                //初始化 events
+                events: Calendar.data("eventsurl"),
+                //事件拖移處理程式
+                drop: function () {
+                },
+                //事件接收處理程式
+                eventReceive: function (event) { // called when a proper external event is dropped
+                    console.log('eventReceive', event);
+                    UpdateEvents();
+                },
+                //拖動權限
+                editable: false,  
+                //事件拖曳處理程式
+                //eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+                //    console.log('eventDrop', event);
+                //    UpdateEvents();
+                //},
+            });
+        }
+    });
+
+    //更新事件
+    function UpdateEvents() {
+        console.log('UpdateEvents()');
+        var clientEvents = $("[data-fullcalendar]").fullCalendar('clientEvents');
+        var jsonString = JSON.stringify(clientEvents);
+
+        jQuery.ajax({
+            type: "POST",
+            url: $("[data-fullcalendar]").data("updateurl"),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: jsonString,
+            success: function (data) { alert(data); },
+            failure: function (errMsg) { alert(errMsg); }
+        });
+    }
+
+
+</script>
+<style>
+    #wrap {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    #calendar {
+        float: right;
+        width: 100%;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+        font-size: 14px;
+    }
+
+    #top {
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+        padding: 0 10px;
+        line-height: 40px;
+        font-size: 12px;
+    }
+</style>

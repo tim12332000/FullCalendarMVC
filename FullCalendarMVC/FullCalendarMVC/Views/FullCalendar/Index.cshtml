@@ -14,18 +14,12 @@
 <script src='~/fullcalendar-2.4.0/lang-all.js'></script>
 
 
-
-
 <body>
     <div id='wrap'>
-        <div id='top'>
-            Language:
-            <select id='lang-selector'></select>
-        </div>
 
-
-        <div id='external-events' 
-             data-externalurl=@Url.Action("GetEvents", "FullCalendar")>
+        <div id='external-events'
+             data-external-events
+             data-external-url=@Url.Action("GetEvents", "FullCalendar")>
         </div>
 
         <div id='calendar'
@@ -34,7 +28,7 @@
              data-resourcesurl=@Url.Action("GetResources","FullCalendar")
              data-updateurl=@Url.Action("PostEvents","FullCalendar")>
         </div>
-
+        
         <div style='clear:both'></div>
 
     </div>
@@ -43,69 +37,54 @@
 
 
 <script>
-    
-
     $(function () {
         /* initialize the external events form object or json
 		-----------------------------------------------------------------*/
+        $("[data-external-events]").each(function () {
+            initDraggable($(this));
+        })
 
-        $.getJSON($("#external-events").data("externalurl"), function (result) {
-            renderDraggable(result);
-        });
+        function initDraggable(Father)
+        {
+            $.getJSON(Father.data("external-url"), function (result) {
+                renderDraggable(result);
+            });
 
-        function renderDraggable(eventsObj) {
+            function renderDraggable(events) {
 
-            eventsObj.forEach(function (item)
-            {
-                if (item.title == null) { return; }
+                events.forEach(function (item) {
+                    if (item.title == null) { return; }
 
-                //生成Draggable html
-                $('#external-events').prepend("<div class='fc-event'>" + item.title + "</div>");
+                    //生成Draggable html
+                    Father.prepend("<div class='fc-event'>" + item.title + "</div>");
 
-                // store data so the calendar knows to render an event upon drop
-                $('#external-events .fc-event').first().data('event', item);
+                    // store data so the calendar knows to render an event upon drop
+                    Father.find('.fc-event').first().data('event', item);
 
-                // make the event draggable using jQuery UI
-                $('#external-events .fc-event').first().draggable({
-                    zIndex: 999,
-                    revert: true,      // will cause the event to go back to its
-                    revertDuration: 0  //  original position after the drag
-                });
-            })
+                    // make the event draggable using jQuery UI
+                    Father.find('.fc-event').first().draggable({
+                        zIndex: 999,
+                        revert: true,      // will cause the event to go back to its
+                        revertDuration: 0  //  original position after the drag
+                    });
+                })
+            }
         }
     })
 
     $(function () { // document ready
-        var currentLangCode = 'zh-tw';
-
-        // build the language selector's options
-        $.each($.fullCalendar.langs, function (langCode) {
-            $('#lang-selector').append(
-				$('<option/>')
-					.attr('value', langCode)
-					.prop('selected', langCode == currentLangCode)
-					.text(langCode)
-			);
-        });
-
-        // rerender the calendar when the selected option changes
-        $('#lang-selector').on('change', function () {
-            if (this.value) {
-                currentLangCode = this.value;
-                $('#calendar').fullCalendar('destroy');
-                renderCalendar();
-            }
-        });
-
-        
 
         /* initialize the calendar
 		-----------------------------------------------------------------*/
-        var Calendar = $("[data-fullcalendar]");
         
-        function renderCalendar() {
+        $("[data-fullcalendar]").each(function ()
+        {
+            renderCalendar($(this));
+        })
+
+        function renderCalendar(Calendar) {
             Calendar.fullCalendar({
-                lang: currentLangCode,
+                lang: "zh-tw",
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 now: '2015-08-07',
                 editable: true, // enable draggable events
@@ -116,44 +95,35 @@
                     left: 'today prev,next',
                     center: 'title',
                 },
+                allDayDefault: false,
+                //inverse_background:'#ff9f89',
                 defaultView: 'timelineMonth',
-                eventOverlap: false, // will cause the event to take up entire resource height
+                //eventOverlap: false, // will cause the event to take up entire resource height
                 resourceLabelText: 'Project',
-                resources: Calendar.data("resourcesurl"),//"/FullCalendar/GetResources",
-
-                eventDrop: function (event, delta, revertFunc) {
-
-                    alert(event.title + " was dropped on " + event.start.format());
-
-                    if (!confirm("Are you sure about this change?")) {
-                        revertFunc();
-                    }
-
-                },
-
+                //初始化 resources
+                resources: Calendar.data("resourcesurl"),
+                //初始化 events
                 events: Calendar.data("eventsurl"),
+                //事件拖移處理程式
                 drop: function () {
-                    // is the "remove after drop" checkbox checked?
-                    if ($('#drop-remove').is(':checked')) {
-                        // if so, remove the element from the "Draggable Events" list
-                        $(this).remove();
-                    }
                 },
+                //事件接收處理程式
                 eventReceive: function (event) { // called when a proper external event is dropped
                     console.log('eventReceive', event);
+                    UpdateEvents();
                 },
-                eventDrop: function (event) { // called when an event (already on the calendar) is moved
+                //事件拖曳處理程式
+                eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
                     console.log('eventDrop', event);
-                }
+                    UpdateEvents();
+                },
             });
         }
-
-        renderCalendar();
     });
 
-    // post events
+    //更新事件
     function UpdateEvents() {
-
+        console.log('UpdateEvents()');
         var clientEvents = $("[data-fullcalendar]").fullCalendar('clientEvents');
         var jsonString = JSON.stringify(clientEvents);
 
